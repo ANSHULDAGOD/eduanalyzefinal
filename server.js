@@ -546,25 +546,50 @@ async function sendWhatsApp(phone, pdfUrl, studentName) {
 
   const url = `https://graph.facebook.com/v18.0/${WA_PHONE_ID}/messages`;
 
-  try {
+try {
     const response = await axios.post(
-      url,
-      {
-        messaging_product: "whatsapp",
-        to: phone,
-        type: "document",
-        document: {
-          link: pdfUrl,
-          filename: `Report_${studentName.replace(/\s/g, "_")}.pdf`
-        }
+  url,
+  {
+    messaging_product: "whatsapp",
+    to: phone,
+    type: "template",
+    template: {
+      name: "report_ready_doc",
+      language: {
+        code: "en"
       },
-      {
-        headers: {
-          Authorization: `Bearer ${WA_TOKEN}`,
-          "Content-Type": "application/json",
+      components: [
+        {
+          type: "header",
+          parameters: [
+            {
+              type: "document",
+              document: {
+                link: pdfUrl,
+                filename: `Report_${studentName.replace(/\s/g, "_")}.pdf`
+              }
+            }
+          ]
         },
-      }
-    );
+        {
+          type: "body",
+          parameters: [
+            {
+              type: "text",
+              text: studentName
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${WA_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+  }
+);
 
     console.log("WhatsApp API response:", response.data);
     return response.data;
